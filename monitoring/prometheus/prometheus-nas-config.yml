@@ -1,0 +1,57 @@
+# Prometheus configuration for NAS monitoring
+# This file should be placed on your NAS server and used by Prometheus
+
+global:
+  scrape_interval: 15s      # 每15秒抓取一次指标
+  evaluation_interval: 15s  # 每15秒评估一次规则
+  scrape_timeout: 10s       # 抓取超时时间
+
+  # 外部标签，可以在所有时序数据中添加这些标签
+  external_labels:
+    cluster: 'nas-cluster'
+    environment: 'production'
+
+# Alertmanager 配置（如果需要告警功能）
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets:
+#           - 'alertmanager:9093'
+
+# 规则文件路径（如果有告警规则）
+# rule_files:
+#   - "alerts/*.yml"
+
+# 抓取配置
+scrape_configs:
+  # Prometheus 自身的指标
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+          instance: 'nas-prometheus'
+
+  # Node Exporter - 系统指标（CPU、内存、磁盘、网络等）
+  - job_name: 'node'
+    static_configs:
+      - targets: ['172.17.0.1:9100']  # 使用 Docker 网桥 IP 访问 host 网络模式的 node-exporter
+        labels:
+          instance: 'nas-server'
+          service: 'node-exporter'
+
+  # cAdvisor - Docker 容器指标（已注释掉，如需要请启用）
+  # - job_name: 'cadvisor'
+  #   static_configs:
+  #     - targets: ['cadvisor:8080']
+  #       labels:
+  #         instance: 'nas-server'
+  #         service: 'cadvisor'
+
+  # 如果你有其他服务需要监控，可以在这里添加
+  # 例如：其他应用指标
+  # - job_name: 'yanlord-app'
+  #   static_configs:
+  #     - targets: ['app-host:8000']
+  #       labels:
+  #         service: 'yanlord-booking'

@@ -1,0 +1,63 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+# Promtail 将日志推送到 Loki 的客户端配置
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+positions:
+  filename: /tmp/positions.yaml
+
+scrape_configs:
+  # 采集 Kubernetes Pod 容器日志（推荐，抓取 stdout/stderr）
+  - job_name: kubernetes-pods
+    kubernetes_sd_configs:
+      - role: pod
+    pipeline_stages:
+      # 解析 Docker/Containerd 的容器日志 JSON 包裹（提取 log 字段）
+      - docker: {}
+      # 解析我们应用的 JSON 日志（来自 python-json-logger）
+      - json:
+          expressions:
+            asctime: asctime
+            levelname: levelname
+            logger: name
+            message: message
+      - labels:
+          level: levelname
+          logger: logger
+    relabel_configs:
+      # 常用标签
+      - source_labels: [__meta_kubernetes_namespace]
+        target_label: namespace
+      - source_labels: [__meta_kubernetes_pod_name]
+        target_label: pod
+      - source_labels: [__meta_kubernetes_pod_container_name]
+        target_label: container
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        target_label: app
+      # 仅保留有日志路径的容器目标
+      - source_labels: [__meta_kubernetes_pod_annotation_kubernetes_io_config_hash]
+        regex: .*
+        action: keep
+
+  # 可选：节点上的 yanlord 日志文件（保留以便回溯/迁移期使用）
+  - job_name: yanlord-hostfile
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: yanlord-hostfile
+          __path__: /var/log/yanlord.log
+    pipeline_stages:
+      - multiline:
+          firstline: '^\d{4}-\d{2}-\d{2}'
+          max_wait_time: 3s
+      - regex:
+          expression: '^(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}) - (?P<level>\w+) - (?P<message>.*)'
+      - labels:
+          level: ""
+      - timestamp:
+          source: timestamp
+          format: '2006-01-02 15:04:05,000'
+          location: Asia/Shanghai

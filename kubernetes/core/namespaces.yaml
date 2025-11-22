@@ -1,0 +1,30 @@
+---
+# Application Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: yanlord
+  labels:
+    name: yanlord
+    environment: production
+    app: yanlord-booking
+
+---
+# Monitoring Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  labels:
+    name: monitoring
+    purpose: observability
+
+---
+# Logging Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: logging
+  labels:
+    name: logging
+    purpose: observability
