@@ -6,7 +6,7 @@ global:
   evaluation_interval: 15s
   external_labels:
     cluster: 'local-k8s'
-    monitor: 'yanlord-monitoring'
+    monitor: 'k8s-monitoring'
 
 # 告警管理器配置（可选）
 # alerting:

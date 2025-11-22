@@ -11,7 +11,7 @@ data:
       evaluation_interval: 15s
       external_labels:
         cluster: 'local-k8s'
-        monitor: 'yanlord-monitoring'
+        monitor: 'k8s-monitoring'
 
     scrape_configs:
       # Prometheus 自身
