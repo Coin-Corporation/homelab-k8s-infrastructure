@@ -22,6 +22,13 @@ spec:
         - containerPort: 3100
           name: http
           protocol: TCP
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
         volumeMounts:
         - name: loki-config
           mountPath: /etc/loki
@@ -34,6 +41,8 @@ spec:
         configMap:
           name: loki-config
       - name: loki-storage
-        emptyDir: {}
+        persistentVolumeClaim:
+          claimName: loki-storage-pvc
       - name: loki-wal
-        emptyDir: {}
+        persistentVolumeClaim:
+          claimName: loki-wal-pvc

@@ -37,6 +37,16 @@ scrape_configs:
         target_label: container
       - source_labels: [__meta_kubernetes_pod_label_app]
         target_label: app
+      # fallback: try other common label keys if `app` label missing
+      - source_labels: [__meta_kubernetes_pod_label_k8s_app]
+        target_label: app
+      - source_labels: [__meta_kubernetes_pod_label_component]
+        target_label: app
+      - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io/name]
+        target_label: app
+      # add a static job label for easier querying
+      - target_label: job
+        replacement: kubernetes-pods
       # 仅保留有日志路径的容器目标
       - source_labels: [__meta_kubernetes_pod_annotation_kubernetes_io_config_hash]
         regex: .*

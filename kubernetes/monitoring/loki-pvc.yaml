@@ -2,10 +2,22 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: loki-storage-pvc
-  namespace: default
+  namespace: logging
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
       storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: loki-wal-pvc
+  namespace: logging
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
