@@ -107,3 +107,12 @@ data:
           - targets: ['node-exporter.monitoring.svc:9100']
         metrics_path: /metrics
         honor_labels: true
+
+      # NAS server node-exporter (external)
+      - job_name: 'node'
+        static_configs:
+          - targets: ['nas-server:9100']
+            labels:
+              instance: 'nas-server'
+              job: 'node'
+        metrics_path: /metrics
